@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRCC Monitoring Tour Diary — Anlakuda Cluster</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+      .diary-table th,
+      .diary-table td {
+        border: 1px solid #1e293b !important;
+        padding: 3.5px 6px !important;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
+      }
+      .diary-input {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-size: 8.5pt !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+      }
+      .no-print-input {
+        display: none !important;
+      }
+      .print-wrap-text {
+        display: block !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
+      }
+    }
+    .print-wrap-text {
+      display: none;
+    }
+    textarea.diary-notes-textarea {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      resize: none;
+      overflow: hidden;
+      min-height: 28px;
+      line-height: 1.35;
+      tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      thead {
+        display: table-header-group;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen pb-12">
+
+  <!-- Datalist of the 15 Anlakuda Cluster Schools for quick autocomplete -->
+  <datalist id="clusterSchoolsList">
+    <option value="Nedhu PS"></option>
+    <option value="Bhadhuasole UPS"></option>
+    <option value="Pathara PS"></option>
+    <option value="Dhadangri PS"></option>
+    <option value="ANLAKUDA PS"></option>
+    <option value="ANLAKUDA UPS"></option>
+    <option value="ANLAKUDA GP H/S"></option>
+    <option value="NADIGAN PS"></option>
+    <option value="KUSUMASOLE UPS"></option>
+    <option value="RANGAMATIA UPS"></option>
+    <option value="BANGRIPOSI PS"></option>
+    <option value="DHADASAHI PS"></option>
+    <option value="DHOBANISOLE PS"></option>
+    <option value="NAGSOLE UPS"></option>
+    <option value="KUSUMASOLE H/S"></option>
+    <option value="HOLIDAY / SUNDAY"></option>
+    <option value="HOLIDAY / GOVT. HOLIDAY"></option>
+  </datalist>
+
+  <!-- Top Control Bar (Hidden in Print) -->
+  <header class="no-print bg-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 font-bold text-sm">
+          CRCC
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-semibold leading-tight">Monitoring Tour Diary Builder</h1>
+          <p class="text-xs text-slate-400">Anlakuda Cluster (15 Schools Auto-Loaded) • Suliapada Block • Mayurbhanj</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="saveStatus" class="text-xs text-emerald-400 bg-emerald-950/70 border border-emerald-700/50 px-2.5 py-1 rounded-full">
+          ✓ 15 Cluster Schools Auto-Filled
+        </span>
+        <button id="btnQuickFill" type="button" class="text-xs font-medium bg-emerald-700 hover:bg-emerald-600 text-white border border-emerald-600 px-3 py-1.5 rounded-lg transition">
+          Fill Sample Visits
+        </button>
+        <button id="btnShuffleSchools" type="button" class="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition">
+          Rotate School Order
+        </button>
+        <button id="btnResetCorrect" type="button" class="text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition">
+          Reset to Corrected Blank
+        </button>
+        <button id="btnExportCsv" type="button" class="text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg transition">
+          Export CSV
+        </button>
+        <button id="btnPrint" type="button" class="text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+          <span>🖨️ Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Settings, Holiday Manager & School Selector Panel (Hidden in Print) -->
+  <section class="no-print max-w-6xl mx-auto px-4 mt-4 space-y-3">
+
+    <!-- Row 1: Month Selection & 15 Cluster Schools Pill Bar -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm flex flex-col gap-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-900">15 Cluster Schools</span>
+          <span class="text-xs text-slate-600">Automatically distributed across all working days (click any school badge below to assign it to the selected row):</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <label for="monthSelect" class="text-xs font-semibold text-slate-700">Month:</label>
+          <select id="monthSelect" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="01">January</option>
+            <option value="02" selected>February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+
+          <label for="yearSelect" class="text-xs font-semibold text-slate-700 ml-1">Year:</label>
+          <select id="yearSelect" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
+          </select>
+
+          <label for="yearFormatSelect" class="text-xs font-semibold text-slate-700 ml-1">Header Format:</label>
+          <select id="yearFormatSelect" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="session" selected>Month Year (Session: YYYY–YY)</option>
+            <option value="range">Month YYYY-YYYY (e.g. 2026-2027)</option>
+            <option value="simple">Month Year Only (e.g. February 2026)</option>
+          </select>
+        </div>
+      </div>
+      <div id="schoolBadgesContainer" class="flex flex-wrap gap-1.5 pt-0.5">
+        <!-- Populated dynamically with the 15 schools -->
+      </div>
+    </div>
+
+    <!-- Row 2: Dedicated Holiday Addition & Management Panel -->
+    <div class="bg-amber-50/90 border border-amber-200 rounded-xl p-3.5 shadow-sm space-y-2.5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200 text-amber-950">Holiday Addition &amp; Manager</span>
+          <span class="text-xs text-amber-900">Select a date and holiday type to add a holiday (or click the <strong>Holiday</strong> toggle button on any row).</span>
+        </div>
+        <label class="flex items-center gap-1.5 text-xs font-medium text-amber-950 cursor-pointer">
+          <input id="chkAutoReflow" type="checkbox" checked class="rounded border-amber-400 text-emerald-600 focus:ring-emerald-500">
+          <span>Auto-reflow 15 schools when adding/removing holidays</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+        <div class="sm:col-span-3">
+          <label for="holidayDateSelect" class="block text-xs font-medium text-amber-950 mb-1">1. Select Date</label>
+          <select id="holidayDateSelect" class="w-full text-xs bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <!-- Populated with dates of current month -->
+          </select>
+        </div>
+
+        <div class="sm:col-span-4">
+          <label for="holidayReasonSelect" class="block text-xs font-medium text-amber-950 mb-1">2. Official DEEO Odisha 2026 Holiday &amp; Observance List</label>
+          <select id="holidayReasonSelect" class="w-full text-xs bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <optgroup label="General / Local Holidays">
+              <option value="HOLIDAY / LOCAL HOLIDAY|Local Holiday|School closed - Local / Visitors Holiday.">30. Local / Visitors Holiday (2 Days)</option>
+              <option value="HOLIDAY / GOVT. HOLIDAY|Govt. Holiday|School closed - Govt. Holiday.">Default: HOLIDAY / GOVT. HOLIDAY</option>
+            </optgroup>
+            <optgroup label="Official 2026 Observance Days (6 Days)">
+              <option value="OBSERVANCE / NETAJI & VSS JAYANTI & BASANTA PANCHAMI|Observance|Observed Subash Chandra Bose Jayanti, Vir Surendra Sai Jayanti & Basanta Panchami in school.">3. Subash Chandra Bose / VSS Jayanti / Basanta Panchami (23.01.2026 - Observance)</option>
+              <option value="OBSERVANCE / REPUBLIC DAY|Observance|Observed 77th Republic Day celebration and flag hoisting with students and staff.">4. Republic Day (26.01.2026 - Observance)</option>
+              <option value="OBSERVANCE / UTKAL DIVAS|Observance|Observed Utkal Divas in school; conducted cultural & statehood awareness activities.">9. Utkal Divas (01.04.2026 - Observance)</option>
+              <option value="OBSERVANCE / INDEPENDENCE DAY|Observance|Observed Independence Day flag hoisting and patriotic programme at school.">17. Independence Day (15.08.2026 - Observance)</option>
+              <option value="OBSERVANCE / GANESH PUJA|Observance|Observed Ganesh Puja in school premises with students and teachers.">21. Ganesh Puja (14.09.2026 - Observance)</option>
+              <option value="OBSERVANCE / GANDHI JAYANTI|Observance|Observed Gandhi Jayanti & Shramdaan cleanliness drive in school.">24. Gandhi Jayanti (02.10.2026 - Observance)</option>
+            </optgroup>
+            <optgroup label="Official 2026 Elementary School Holidays (DEEO Order 23204)">
+              <option value="HOLIDAY / NEW YEARS' DAY|Holiday|School closed - New Years' Day.">1. New Years' Day (01.01.2026)</option>
+              <option value="HOLIDAY / MAKAR SANKRANTI|Holiday|School closed - Makar Sankranti.">2. Makar Sankranti (14.01.2026)</option>
+              <option value="HOLIDAY / DOLA PURNIMA|Holiday|School closed - Dola Purnima.">5. Dola Purnima (03.03.2026)</option>
+              <option value="HOLIDAY / HOLI|Holiday|School closed - Holi.">6. Holi (04.03.2026)</option>
+              <option value="HOLIDAY / ID UL FITR|Holiday|School closed - Id Ul Fitr.">7. Id Ul Fitr (21.03.2026)</option>
+              <option value="HOLIDAY / SRI RAM NAVAMI|Holiday|School closed - Sri Ram Navami.">8. Sri Ram Navami (27.03.2026)</option>
+              <option value="HOLIDAY / GOOD FRIDAY|Holiday|School closed - Good Friday.">10. Good Friday (03.04.2026)</option>
+              <option value="HOLIDAY / MAHA VISHUVA SANKRANTI & AMBEDKAR JAYANTI|Holiday|School closed - Maha Vishuva Sankranti / Dr. B.R Ambedkar Jayanti.">11. Maha Vishuva Sankranti / Dr. B.R Ambedkar Jayanti (14.04.2026)</option>
+              <option value="HOLIDAY / BUDDA PURNIMA & PT. RAGHUNATH MURMU BIRTHDAY|Holiday|School closed - Budda Purnima / Pandit Raghunath Murmu's Birthday.">12. Budda Purnima / Pt. Raghunath Murmu's Birthday (01.05.2026)</option>
+              <option value="HOLIDAY / SUMMER VACATION|Summer Vacation|School closed - Summer Vacation (06.05.2026 to 17.06.2026).">13. Summer Vacation (06.05.2026 to 17.06.2026 - 38 Days)</option>
+              <option value="HOLIDAY / MAHARAM|Holiday|School closed - Maharam.">14. Maharam (26.06.2026)</option>
+              <option value="HOLIDAY / RATHA YATRA|Holiday|School closed - Ratha Yatra.">15. Ratha Yatra (16.07.2026)</option>
+              <option value="HOLIDAY / BAHUDA YATRA|Holiday|School closed - Bahuda Yatra.">16. Bahuda Yatra (24.07.2026)</option>
+              <option value="HOLIDAY / BIRTHDAY OF PROPHET MOHAMMAD|Holiday|School closed - Birthday of Prophet Mohammad.">18. Birthday of Prophet Mohammad (26.08.2026)</option>
+              <option value="HOLIDAY / JHULANA PURNIMA & RAKSHYA BANDHAN|Holiday|School closed - Jhulana Purnima / Rakshya Bandhan.">19. Jhulana Purnima / Rakshya Bandhan (27.08.2026)</option>
+              <option value="HOLIDAY / JANMASHTAMI|Holiday|School closed - Janmashtami.">20. Janmashtami (04.09.2026)</option>
+              <option value="HOLIDAY / NUAKHAI|Holiday|School closed - Nuakhai.">22. Nuakhai (15.09.2026)</option>
+              <option value="HOLIDAY / DAY FOLLOWING NUAKHAI|Holiday|School closed - Day Following Nuakhai.">23. Day Following Nuakhai (16.09.2026)</option>
+              <option value="HOLIDAY / MAHALAYA|Holiday|School closed - Mahalaya.">25. Mahalaya (10.10.2026)</option>
+              <option value="HOLIDAY / PUJA VACATION|Puja Vacation|School closed - Puja Vacation (17.10.2026 to 26.10.2026).">26. Puja Vacation (17.10.2026 to 26.10.2026 - 8 Days)</option>
+              <option value="HOLIDAY / RAHAS PURNIMA|Holiday|School closed - Rahas Purnima.">27. Rahas Purnima (24.11.2026)</option>
+              <option value="HOLIDAY / PRATHAMASTAMI|Holiday|School closed - Prathamastami.">28. Prathamastami (01.12.2026)</option>
+              <option value="HOLIDAY / WINTER VACATION|Winter Vacation|School closed - Winter Vacation / Break (23.12.2026 to 31.12.2026).">29. Winter Vacation / Break (23.12.2026 to 31.12.2026 - 8 Days)</option>
+              <option value="CUSTOM">Custom Holiday / Observance Name...</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="sm:col-span-3">
+          <label for="customHolidayInput" class="block text-xs font-medium text-amber-950 mb-1">3. Custom Label (Optional)</label>
+          <input id="customHolidayInput" type="text" placeholder="e.g. Block Sports / Collector Declared" class="w-full text-xs bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div class="sm:col-span-2 flex gap-1.5">
+          <button id="btnAddHoliday" type="button" class="w-full text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg shadow-sm transition">
+            + Add Holiday
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Holidays List -->
+      <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
+        <span class="font-semibold text-amber-950">Active Non-Sunday Holidays:</span>
+        <div id="activeHolidaysList" class="flex flex-wrap items-center gap-1.5">
+          <span class="text-amber-800 italic">None added yet (Sundays are marked automatically)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Header Metadata Editor & Row Observation Preset -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div>
+        <label for="inputName" class="block text-xs font-medium text-slate-600 mb-1">Officer Name &amp; Designation</label>
+        <input id="inputName" type="text" value="Mohan Kumar Behera (CRCC)" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      </div>
+      <div>
+        <label for="inputCluster" class="block text-xs font-medium text-slate-600 mb-1">Cluster / Block / District</label>
+        <input id="inputCluster" type="text" value="Cluster: Anlakuda | Block: Suliapada | District: Mayurbhanj" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      </div>
+      <div>
+        <label for="inputSubmittedTo" class="block text-xs font-medium text-slate-600 mb-1">Submitted To</label>
+        <input id="inputSubmittedTo" type="text" value="Block Education Officer, Suliapada Block" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      </div>
+      <div>
+        <label for="selectPreset" class="block text-xs font-medium text-slate-600 mb-1">Observation List (Apply to Selected Row)</label>
+        <div class="flex gap-1.5">
+          <select id="selectPreset" class="w-full text-xs border border-slate-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="">-- Choose Monitoring Observation --</option>
+            <option value="tlm">1. TLM &amp; Classroom Process</option>
+            <option value="fln">2. FLN / NIPUN Odisha &amp; Workbooks</option>
+            <option value="mdm">3. MDM Quality, Menu &amp; Hygiene</option>
+            <option value="lesson">4. Teacher Lesson Plan &amp; Diary Check</option>
+            <option value="library">5. Reading Corner &amp; Library Usage</option>
+            <option value="assessment">6. Formative / Summative Assessment Check</option>
+            <option value="udise">7. UDISE+ / e-Shishu &amp; Register Audit</option>
+            <option value="smc">8. SMC / PTA &amp; Community Mobilization</option>
+            <option value="swachhta">9. Campus Swachhta, Safe Water &amp; Toilets</option>
+            <option value="cwsn">10. Inclusive Education &amp; CWSN Support</option>
+            <option value="science">11. Science &amp; Math Kit Activity Check</option>
+            <option value="meeting">12. Block / Cluster Monthly Sharing Meeting</option>
+            <option value="observance">13. School Observance Day Celebration</option>
+            <option value="holiday">14. Mark Selected Row as Holiday</option>
+          </select>
+          <button id="btnApplyPreset" type="button" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1.5 rounded-lg shrink-0">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: Interactive Reference Drawer for All 30 Official 2026 Holidays/Observances & 15 Monitoring Observations -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-100 text-indigo-900">DEEO Odisha 2026 Order No. 23204</span>
+          <span class="text-xs text-slate-600">All 30 Official Elementary School Holidays &amp; Observances are <strong>auto-loaded by date</strong> when you select any month in 2026.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnToggleRefLists" type="button" class="text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 px-3 py-1 rounded-lg transition">
+            📋 View / Hide Full 2026 Holiday &amp; Observation Lists
+          </button>
+        </div>
+      </div>
+
+      <div id="refListsDrawer" class="hidden mt-3 pt-3 border-t border-slate-200 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Left: Official 30-item Holiday & Observance Table -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
+            Official 2026 Elementary School Holiday &amp; Observance List (82 Days + 6 Observances)
+          </h4>
+          <div class="max-h-64 overflow-y-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-[11px] border-collapse">
+              <thead class="bg-slate-100 sticky top-0">
+                <tr>
+                  <th class="border-b border-slate-300 py-1 px-2 text-left">Sl.</th>
+                  <th class="border-b border-slate-300 py-1 px-2 text-left">Holiday / Festival</th>
+                  <th class="border-b border-slate-300 py-1 px-2 text-left">Date (2026)</th>
+                  <th class="border-b border-slate-300 py-1 px-2 text-left">Type / Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="officialHolidayTableBody" class="divide-y divide-slate-200">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Standard CRCC Monitoring Observations Bank (Click to apply to selected row) -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
+            CRCC Monitoring Observations Bank (Click any observation to insert into selected row)
+          </h4>
+          <div id="observationBankList" class="max-h-64 overflow-y-auto border border-slate-200 rounded-lg divide-y divide-slate-200">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Printable Document Sheet -->
+  <main class="max-w-5xl mx-auto mt-4 px-4">
+    <div class="print-sheet bg-white shadow-lg border border-slate-200 rounded-xl p-6 sm:p-10">
+
+      <!-- Official Document Header -->
+      <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
+        <h2 class="text-base sm:text-xl font-bold text-slate-900 tracking-tight">
+          Office of the Cluster Resource Centre Coordinator
+        </h2>
+        <p id="displayCluster" class="text-xs sm:text-sm font-semibold text-slate-700 mt-0.5">
+          Cluster: Anlakuda | Block: Suliapada | District: Mayurbhanj
+        </p>
+        <h3 class="text-sm sm:text-lg font-bold text-slate-900 underline mt-1.5">
+          Monitoring Tour Diary
+        </h3>
+      </div>
+
+      <!-- Officer & Month Metadata Row -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 text-xs sm:text-sm">
+        <div>
+          <span class="font-bold text-slate-900">Name:</span>
+          <span id="displayName" class="text-slate-800 ml-1">Mohan Kumar Behera (CRCC)</span>
+        </div>
+        <div>
+          <span class="font-bold text-slate-900">Month:</span>
+          <span id="displayMonth" class="text-slate-800 ml-1">February 2026 (Session: 2025–26)</span>
+        </div>
+      </div>
+
+      <!-- Summary Counters (Hidden in Print) -->
+      <div class="no-print flex flex-wrap items-center justify-between gap-2 mb-3 text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+        <div class="flex flex-wrap items-center gap-4">
+          <span>Total Days: <strong id="statTotalDays" class="text-slate-900">28</strong></span>
+          <span>Working Days: <strong id="statWorkingDays" class="text-emerald-700">24</strong></span>
+          <span>Sundays / Holidays: <strong id="statHolidays" class="text-amber-700">4</strong></span>
+          <span>Entries Filled: <strong id="statFilled" class="text-indigo-700">28</strong></span>
+        </div>
+        <span id="selectedRowIndicator" class="text-slate-500 font-medium">Selected row: 02.02.2026 (Monday)</span>
+      </div>
+
+      <!-- Tour Diary Table -->
+      <div class="overflow-x-auto">
+        <table class="diary-table w-full border-collapse border border-slate-800 text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-100 text-slate-900">
+              <th class="border border-slate-800 py-2 px-2 text-center font-bold w-24">Date</th>
+              <th class="border border-slate-800 py-2 px-2 text-left font-bold w-24">Day</th>
+              <th class="border border-slate-800 py-2 px-2 text-left font-bold w-48">School / Place</th>
+              <th class="border border-slate-800 py-2 px-2 text-left font-bold w-36">Purpose</th>
+              <th class="border border-slate-800 py-2 px-2 text-left font-bold">Monitoring Notes / Observations</th>
+              <th class="no-print border border-slate-800 py-2 px-2 text-center font-bold w-24">Holiday?</th>
+            </tr>
+          </thead>
+          <tbody id="diaryTableBody">
+            <!-- Dynamically populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Official Footer Signature Block -->
+      <div class="mt-8 pt-4 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 text-xs sm:text-sm text-slate-900">
+        <div class="leading-relaxed">
+          <p class="font-bold">Submitted To:</p>
+          <p id="displaySubmittedLine1">Block Education Officer</p>
+          <p id="displaySubmittedLine2">Suliapada Block</p>
+        </div>
+
+        <div class="text-left sm:text-right min-w-[210px]">
+          <div class="border-b border-slate-900 w-52 mb-1.5 sm:ml-auto"></div>
+          <p id="displaySigName" class="font-bold">(Mohan Kumar Behera)</p>
+          <p id="displaySigRole">CRCC, Anlakuda</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const MONTH_NAMES = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    // Exact 15 schools provided by the user for Anlakuda Cluster
+    const SAMPLE_SCHOOLS = [
+      'Nedhu PS',
+      'Bhadhuasole UPS',
+      'Pathara PS',
+      'Dhadangri PS',
+      'ANLAKUDA PS',
+      'ANLAKUDA UPS',
+      'ANLAKUDA GP H/S',
+      'NADIGAN PS',
+      'KUSUMASOLE UPS',
+      'RANGAMATIA UPS',
+      'BANGRIPOSI PS',
+      'DHADASAHI PS',
+      'DHOBANISOLE PS',
+      'NAGSOLE UPS',
+      'KUSUMASOLE H/S'
+    ];
+
+    // Rich list of 12 varied CRCC Monitoring Observations rotated across working days
+    const VISIT_TEMPLATES = [
+      {
+        purpose: 'Academic Supervision',
+        notes: 'TLM used effectively during the teaching-learning process. Students actively participated in classroom activities.'
+      },
+      {
+        purpose: 'FLN & Workbook Check',
+        notes: 'Observed FLN classroom transactions for Classes I–III; verified student workbook completion and learning tracker.'
+      },
+      {
+        purpose: 'MDM & Attendance Check',
+        notes: 'Verified student & teacher attendance registers, MDM menu compliance, food quality, and kitchen hygiene.'
+      },
+      {
+        purpose: 'Lesson Plan & Diary Audit',
+        notes: 'Checked teachers\' daily lesson plans and academic diaries; TLM used effectively during classroom transaction.'
+      },
+      {
+        purpose: 'Library & Reading Corner',
+        notes: 'Monitored library period and Reading Corner utilization; assessed students\' Odia and English reading fluency.'
+      },
+      {
+        purpose: 'Science & Math Kit Visit',
+        notes: 'Observed hands-on demonstration using Science and Mathematics kits in upper primary classes.'
+      },
+      {
+        purpose: 'Assessment & Register Check',
+        notes: 'Reviewed Formative & Summative Assessment records, progress registers, and remedial teaching plans.'
+      },
+      {
+        purpose: 'UDISE+ & Record Verification',
+        notes: 'Verified student APAAR / UDISE+ profile updates, admission registers, and stock book maintenance.'
+      },
+      {
+        purpose: 'Swachhta & WASH Supervision',
+        notes: 'Inspected campus cleanliness, safe drinking water facility, handwashing station, and separate functional toilets.'
+      },
+      {
+        purpose: 'Inclusive Education (CWSN)',
+        notes: 'Reviewed classroom support and TLM adaptation for CWSN learners; interacted with parents and teachers.'
+      },
+      {
+        purpose: 'SMC & Community Interaction',
+        notes: 'Interacted with Headmaster and SMC members regarding regular student attendance and school development plan.'
+      },
+      {
+        purpose: 'School Monitoring',
+        notes: 'Observed morning assembly, classroom pedagogy, and effective use of TLM during the teaching-learning process.'
+      }
+    ];
+
+    const PRESETS = {
+      tlm: {
+        school: 'ANLAKUDA PS',
+        purpose: 'Academic Supervision',
+        notes: 'TLM used effectively during the teaching-learning process. Students actively participated in classroom activities.'
+      },
+      fln: {
+        school: 'KUSUMASOLE UPS',
+        purpose: 'FLN & Workbook Check',
+        notes: 'Observed FLN classroom transactions for Classes I–III; verified student workbook completion and learning tracker.'
+      },
+      mdm: {
+        school: 'Bhadhuasole UPS',
+        purpose: 'MDM & Attendance Check',
+        notes: 'Verified student & teacher attendance registers, MDM menu compliance, food quality, and kitchen hygiene.'
+      },
+      lesson: {
+        school: 'Nedhu PS',
+        purpose: 'Lesson Plan & Diary Audit',
+        notes: 'Checked teachers\' daily lesson plans and academic diaries; TLM used effectively during classroom transaction.'
+      },
+      library: {
+        school: 'Pathara PS',
+        purpose: 'Library & Reading Corner',
+        notes: 'Monitored library period and Reading Corner utilization; assessed students\' Odia and English reading fluency.'
+      },
+      assessment: {
+        school: 'ANLAKUDA GP H/S',
+        purpose: 'Assessment & Register Check',
+        notes: 'Reviewed Formative & Summative Assessment records, progress registers, and remedial teaching plans.'
+      },
+      udise: {
+        school: 'RANGAMATIA UPS',
+        purpose: 'UDISE+ & Record Verification',
+        notes: 'Verified student APAAR / UDISE+ profile updates, admission registers, and stock book maintenance.'
+      },
+      smc: {
+        school: 'NADIGAN PS',
+        purpose: 'SMC & Community Interaction',
+        notes: 'Interacted with Headmaster and SMC members regarding regular student attendance and school development plan.'
+      },
+      swachhta: {
+        school: 'BANGRIPOSI PS',
+        purpose: 'Swachhta & WASH Supervision',
+        notes: 'Inspected campus cleanliness, safe drinking water facility, handwashing station, and separate functional toilets.'
+      },
+      cwsn: {
+        school: 'DHADASAHI PS',
+        purpose: 'Inclusive Education (CWSN)',
+        notes: 'Reviewed classroom support and TLM adaptation for CWSN learners; interacted with parents and teachers.'
+      },
+      science: {
+        school: 'NAGSOLE UPS',
+        purpose: 'Science & Math Kit Visit',
+        notes: 'Observed hands-on demonstration using Science and Mathematics kits in upper primary classes.'
+      },
+      meeting: {
+        school: 'BEO Office, Suliapada',
+        purpose: 'Monthly Review Meeting',
+        notes: 'Attended block-level monthly academic review and data validation meeting.'
+      },
+      observance: {
+        school: 'ANLAKUDA UPS',
+        purpose: 'Observance',
+        notes: 'Observed official commemorative day celebration in school with teachers and students.'
+      },
+      holiday: {
+        school: 'HOLIDAY / GOVT. HOLIDAY',
+        purpose: 'Govt. Holiday',
+        notes: 'School closed - Govt. Holiday.'
+      }
+    };
+
+    // Complete 30-item Official 2026 Holiday & Observance List from DEEO Odisha Order No. 23204 (Dt. 16-12-2025)
+    const OFFICIAL_2026_SUMMARY_LIST = [
+      { sl: 1, name: "New Years' Day", date: "01.01.2026", day: "Thursday", days: 1, remarks: "Holiday" },
+      { sl: 2, name: "Makar Sankranti", date: "14.01.2026", day: "Wednesday", days: 1, remarks: "Holiday" },
+      { sl: 3, name: "Subash Chandra Bose Jayanti / Vir Surendra Sai Jayanti / Basanta Panchami", date: "23.01.2026", day: "Friday", days: 1, remarks: "Observance" },
+      { sl: 4, name: "Republic Day", date: "26.01.2026", day: "Monday", days: 1, remarks: "Observance" },
+      { sl: 5, name: "Dola Purnima", date: "03.03.2026", day: "Tuesday", days: 1, remarks: "Holiday" },
+      { sl: 6, name: "Holi", date: "04.03.2026", day: "Wednesday", days: 1, remarks: "Holiday" },
+      { sl: 7, name: "Id Ul Fitr", date: "21.03.2026", day: "Saturday", days: 1, remarks: "Holiday" },
+      { sl: 8, name: "Sri Ram Navami", date: "27.03.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 9, name: "Utkal Divas", date: "01.04.2026", day: "Wednesday", days: 1, remarks: "Observance" },
+      { sl: 10, name: "Good Friday", date: "03.04.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 11, name: "Maha Vishuva Sankranti / Dr. B.R Ambedkar Jayanti", date: "14.04.2026", day: "Tuesday", days: 1, remarks: "Holiday" },
+      { sl: 12, name: "Budda Purnima / Pandit Raghunath Murmu's Birthday", date: "01.05.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 13, name: "Summer Vacation", date: "06.05.2026 to 17.06.2026", day: "Wed to Wed", days: 38, remarks: "Vacation (38 Days)" },
+      { sl: 14, name: "Maharam", date: "26.06.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 15, name: "Ratha Yatra", date: "16.07.2026", day: "Thursday", days: 1, remarks: "Holiday" },
+      { sl: 16, name: "Bahuda Yatra", date: "24.07.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 17, name: "Independence Day", date: "15.08.2026", day: "Saturday", days: 1, remarks: "Observance" },
+      { sl: 18, name: "Birthday of Prophet Mohammad", date: "26.08.2026", day: "Wednesday", days: 1, remarks: "Holiday" },
+      { sl: 19, name: "Jhulana Purnima / Rakshya Bandhan", date: "27.08.2026", day: "Thursday", days: 1, remarks: "Holiday" },
+      { sl: 20, name: "Janmashtami", date: "04.09.2026", day: "Friday", days: 1, remarks: "Holiday" },
+      { sl: 21, name: "Ganesh Puja", date: "14.09.2026", day: "Monday", days: 1, remarks: "Observance" },
+      { sl: 22, name: "Nuakhai", date: "15.09.2026", day: "Tuesday", days: 1, remarks: "Holiday" },
+      { sl: 23, name: "Day Following Nuakhai", date: "16.09.2026", day: "Wednesday", days: 1, remarks: "Holiday" },
+      { sl: 24, name: "Gandhi Jayanti", date: "02.10.2026", day: "Friday", days: 1, remarks: "Observance" },
+      { sl: 25, name: "Mahalaya", date: "10.10.2026", day: "Saturday", days: 1, remarks: "Holiday" },
+      { sl: 26, name: "Puja Vacation", date: "17.10.2026 to 26.10.2026", day: "Sat to Mon", days: 8, remarks: "Vacation (8 Days)" },
+      { sl: 27, name: "Rahas Purnima", date: "24.11.2026", day: "Tuesday", days: 1, remarks: "Holiday" },
+      { sl: 28, name: "Prathamastami", date: "01.12.2026", day: "Tuesday", days: 1, remarks: "Holiday" },
+      { sl: 29, name: "Winter Vacation / Break", date: "23.12.2026 to 31.12.2026", day: "Wed to Thu", days: 8, remarks: "Vacation (8 Days)" },
+      { sl: 30, name: "Local / Visitors Holiday", date: "2 Days (Block/Local)", day: "-", days: 2, remarks: "Local Holiday" }
+    ];
+
+    function getOfficial2026HolidaysForMonth(year, month) {
+      const map = {};
+      if (year !== 2026) return map;
+
+      const singleDays = {
+        '01.01.2026': { school: "HOLIDAY / NEW YEARS' DAY", purpose: "Holiday", notes: "School closed - New Years' Day." },
+        '14.01.2026': { school: "HOLIDAY / MAKAR SANKRANTI", purpose: "Holiday", notes: "School closed - Makar Sankranti." },
+        '23.01.2026': { school: "ANLAKUDA PS (OBSERVANCE)", purpose: "Observance", notes: "Observed Subash Chandra Bose Jayanti, Vir Surendra Sai Jayanti & Basanta Panchami in school." },
+        '26.01.2026': { school: "ANLAKUDA GP H/S (OBSERVANCE)", purpose: "Observance", notes: "Observed Republic Day flag hoisting and celebration with students and staff." },
+        '03.03.2026': { school: "HOLIDAY / DOLA PURNIMA", purpose: "Holiday", notes: "School closed - Dola Purnima." },
+        '04.03.2026': { school: "HOLIDAY / HOLI", purpose: "Holiday", notes: "School closed - Holi." },
+        '21.03.2026': { school: "HOLIDAY / ID UL FITR", purpose: "Holiday", notes: "School closed - Id Ul Fitr." },
+        '27.03.2026': { school: "HOLIDAY / SRI RAM NAVAMI", purpose: "Holiday", notes: "School closed - Sri Ram Navami." },
+        '01.04.2026': { school: "KUSUMASOLE UPS (OBSERVANCE)", purpose: "Observance", notes: "Observed Utkal Divas in school; conducted statehood awareness activities with students." },
+        '03.04.2026': { school: "HOLIDAY / GOOD FRIDAY", purpose: "Holiday", notes: "School closed - Good Friday." },
+        '14.04.2026': { school: "HOLIDAY / MAHA VISHUVA SANKRANTI", purpose: "Holiday", notes: "School closed - Maha Vishuva Sankranti / Dr. B.R Ambedkar Jayanti." },
+        '01.05.2026': { school: "HOLIDAY / BUDDA PURNIMA", purpose: "Holiday", notes: "School closed - Budda Purnima / Pandit Raghunath Murmu's Birthday." },
+        '26.06.2026': { school: "HOLIDAY / MAHARAM", purpose: "Holiday", notes: "School closed - Maharam." },
+        '16.07.2026': { school: "HOLIDAY / RATHA YATRA", purpose: "Holiday", notes: "School closed - Ratha Yatra." },
+        '24.07.2026': { school: "HOLIDAY / BAHUDA YATRA", purpose: "Holiday", notes: "School closed - Bahuda Yatra." },
+        '15.08.2026': { school: "ANLAKUDA UPS (OBSERVANCE)", purpose: "Observance", notes: "Observed Independence Day flag hoisting and celebration at school." },
+        '26.08.2026': { school: "HOLIDAY / PROPHET MOHAMMAD BIRTHDAY", purpose: "Holiday", notes: "School closed - Birthday of Prophet Mohammad." },
+        '27.08.2026': { school: "HOLIDAY / JHULANA PURNIMA & RAKSHYA BANDHAN", purpose: "Holiday", notes: "School closed - Jhulana Purnima / Rakshya Bandhan." },
+        '04.09.2026': { school: "HOLIDAY / JANMASHTAMI", purpose: "Holiday", notes: "School closed - Janmashtami." },
+        '14.09.2026': { school: "KUSUMASOLE H/S (OBSERVANCE)", purpose: "Observance", notes: "Observed Ganesh Puja celebration in school premises with students and teachers." },
+        '15.09.2026': { school: "HOLIDAY / NUAKHAI", purpose: "Holiday", notes: "School closed - Nuakhai." },
+        '16.09.2026': { school: "HOLIDAY / DAY FOLLOWING NUAKHAI", purpose: "Holiday", notes: "School closed - Day Following Nuakhai." },
+        '02.10.2026': { school: "Bhadhuasole UPS (OBSERVANCE)", purpose: "Observance", notes: "Observed Gandhi Jayanti & Swachhta Shramdaan activity at school." },
+        '10.10.2026': { school: "HOLIDAY / MAHALAYA", purpose: "Holiday", notes: "School closed - Mahalaya." },
+        '24.11.2026': { school: "HOLIDAY / RAHAS PURNIMA", purpose: "Holiday", notes: "School closed - Rahas Purnima." },
+        '01.12.2026': { school: "HOLIDAY / PRATHAMASTAMI", purpose: "Holiday", notes: "School closed - Prathamastami." }
+      };
+
+      // Add multi-day vacations for 2026:
+      // 13. Summer Vacation: 06.05.2026 to 17.06.2026
+      if (month === 5) {
+        for (let d = 6; d <= 31; d++) {
+          const dt = new Date(2026, 4, d);
+          if (dt.getDay() !== 0) {
+            map[pad2(d) + '.05.2026'] = { school: "HOLIDAY / SUMMER VACATION", purpose: "Summer Vacation", notes: "School closed - Summer Vacation (06.05.2026 to 17.06.2026)." };
+          }
+        }
+      }
+      if (month === 6) {
+        for (let d = 1; d <= 17; d++) {
+          const dt = new Date(2026, 5, d);
+          if (dt.getDay() !== 0) {
+            map[pad2(d) + '.06.2026'] = { school: "HOLIDAY / SUMMER VACATION", purpose: "Summer Vacation", notes: "School closed - Summer Vacation (06.05.2026 to 17.06.2026)." };
+          }
+        }
+      }
+      // 26. Puja Vacation: 17.10.2026 to 26.10.2026
+      if (month === 10) {
+        for (let d = 17; d <= 26; d++) {
+          const dt = new Date(2026, 9, d);
+          if (dt.getDay() !== 0) {
+            map[pad2(d) + '.10.2026'] = { school: "HOLIDAY / PUJA VACATION", purpose: "Puja Vacation", notes: "School closed - Puja Vacation (17.10.2026 to 26.10.2026)." };
+          }
+        }
+      }
+      // 29. Winter Vacation / Break: 23.12.2026 to 31.12.2026
+      if (month === 12) {
+        for (let d = 23; d <= 31; d++) {
+          const dt = new Date(2026, 11, d);
+          if (dt.getDay() !== 0) {
+            map[pad2(d) + '.12.2026'] = { school: "HOLIDAY / WINTER VACATION", purpose: "Winter Vacation", notes: "School closed - Winter Vacation / Break (23.12.2026 to 31.12.2026)." };
+          }
+        }
+      }
+
+      const monthSuffix = '.' + pad2(month) + '.2026';
+      Object.keys(singleDays).forEach(function(dateKey) {
+        if (dateKey.indexOf(monthSuffix) !== -1) {
+          map[dateKey] = singleDays[dateKey];
+        }
+      });
+
+      return map;
+    }
+
+    let currentYearMonth = '2026-02';
+    let selectedRowIndex = 1; // First Monday in Feb 2026
+    let schoolOffset = 0;
+    let diaryRows = [];
+    // Map of custom non-Sunday holidays keyed by date string 'DD.MM.YYYY' -> { school, purpose, notes }
+    let customHolidays = {};
+
+    function pad2(n) {
+      return n < 10 ? '0' + n : '' + n;
+    }
+
+    function getSessionLabel(year, monthIndex) {
+      if (monthIndex <= 2) {
+        return (year - 1) + '–' + String(year).slice(-2);
+      }
+      return year + '–' + String(year + 1).slice(-2);
+    }
+
+    function buildMonthRows(yearMonth, useSampleVisits) {
+      const parts = yearMonth.split('-');
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const rows = [];
+      let workingSchoolCounter = 0;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateObj = new Date(year, month - 1, d);
+        const dayOfWeek = dateObj.getDay();
+        const dayName = DAY_NAMES[dayOfWeek];
+        const dateStr = pad2(d) + '.' + pad2(month) + '.' + year;
+
+        if (dayOfWeek === 0) {
+          rows.push({
+            date: dateStr,
+            day: dayName,
+            isSunday: true,
+            isHoliday: true,
+            school: 'HOLIDAY / SUNDAY',
+            purpose: 'Sunday',
+            notes: 'School closed - Sunday.'
+          });
+        } else if (customHolidays[dateStr]) {
+          const h = customHolidays[dateStr];
+          rows.push({
+            date: dateStr,
+            day: dayName,
+            isSunday: false,
+            isHoliday: true,
+            school: h.school,
+            purpose: h.purpose,
+            notes: h.notes
+          });
+        } else if (useSampleVisits) {
+          const schoolIdx = (workingSchoolCounter + schoolOffset) % SAMPLE_SCHOOLS.length;
+          const tpl = VISIT_TEMPLATES[workingSchoolCounter % VISIT_TEMPLATES.length];
+          workingSchoolCounter++;
+          rows.push({
+            date: dateStr,
+            day: dayName,
+            isSunday: false,
+            isHoliday: false,
+            school: SAMPLE_SCHOOLS[schoolIdx],
+            purpose: tpl.purpose,
+            notes: tpl.notes
+          });
+        } else {
+          rows.push({
+            date: dateStr,
+            day: dayName,
+            isSunday: false,
+            isHoliday: false,
+            school: '',
+            purpose: '',
+            notes: ''
+          });
+        }
+      }
+      return rows;
+    }
+
+    function reflowSchoolsAcrossWorkingDays() {
+      let workingSchoolCounter = 0;
+      diaryRows.forEach(function(row) {
+        if (!row.isSunday && !row.isHoliday) {
+          const schoolIdx = (workingSchoolCounter + schoolOffset) % SAMPLE_SCHOOLS.length;
+          const tpl = VISIT_TEMPLATES[workingSchoolCounter % VISIT_TEMPLATES.length];
+          workingSchoolCounter++;
+          row.school = SAMPLE_SCHOOLS[schoolIdx];
+          row.purpose = tpl.purpose;
+          row.notes = tpl.notes;
+        }
+      });
+    }
+
+    function renderSchoolBadges() {
+      const container = document.getElementById('schoolBadgesContainer');
+      container.innerHTML = '';
+      SAMPLE_SCHOOLS.forEach(function(schoolName, i) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'text-xs bg-slate-100 hover:bg-emerald-100 hover:text-emerald-900 hover:border-emerald-300 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md transition';
+        btn.textContent = (i + 1) + '. ' + schoolName;
+        btn.addEventListener('click', function() {
+          if (!diaryRows[selectedRowIndex]) return;
+          const target = diaryRows[selectedRowIndex];
+          if (target.isSunday) {
+            flashStatus('Cannot assign school to Sunday (' + target.date + ')');
+            return;
+          }
+          delete customHolidays[target.date];
+          target.isHoliday = false;
+          target.school = schoolName;
+          if (!target.purpose || /holiday/i.test(target.purpose)) {
+            target.purpose = 'Academic Supervision';
+          }
+          if (!target.notes || /closed/i.test(target.notes)) {
+            target.notes = 'TLM used effectively during the teaching-learning process.';
+          }
+          renderTable();
+          renderActiveHolidays();
+          flashStatus('Assigned ' + schoolName + ' to ' + target.date);
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function populateHolidayDateDropdown() {
+      const sel = document.getElementById('holidayDateSelect');
+      sel.innerHTML = '';
+      diaryRows.forEach(function(row, idx) {
+        if (!row.isSunday) {
+          const opt = document.createElement('option');
+          opt.value = row.date;
+          opt.textContent = row.date + ' (' + row.day + ')' + (row.isHoliday ? ' [HOLIDAY]' : ' — ' + (row.school || 'Working'));
+          if (idx === selectedRowIndex) {
+            opt.selected = true;
+          }
+          sel.appendChild(opt);
+        }
+      });
+    }
+
+    function renderActiveHolidays() {
+      const container = document.getElementById('activeHolidaysList');
+      container.innerHTML = '';
+      const dates = Object.keys(customHolidays).sort();
+      if (dates.length === 0) {
+        const span = document.createElement('span');
+        span.className = 'text-amber-800 italic';
+        span.textContent = 'None added yet (Sundays are marked automatically)';
+        container.appendChild(span);
+        return;
+      }
+
+      dates.forEach(function(dateStr) {
+        const info = customHolidays[dateStr];
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center gap-1.5 bg-amber-200/80 text-amber-950 border border-amber-300 px-2.5 py-0.5 rounded-full text-xs font-medium';
+        badge.textContent = dateStr + ': ' + info.school;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'text-amber-900 hover:text-red-700 font-bold ml-1';
+        removeBtn.textContent = '×';
+        removeBtn.title = 'Remove holiday and restore school visit';
+        removeBtn.addEventListener('click', function() {
+          removeHolidayOnDate(dateStr);
+        });
+
+        badge.appendChild(removeBtn);
+        container.appendChild(badge);
+      });
+    }
+
+    function applyHolidayToDate(dateStr, schoolLabel, purposeLabel, notesLabel) {
+      customHolidays[dateStr] = {
+        school: schoolLabel,
+        purpose: purposeLabel,
+        notes: notesLabel
+      };
+
+      diaryRows.forEach(function(row) {
+        if (row.date === dateStr && !row.isSunday) {
+          row.isHoliday = true;
+          row.school = schoolLabel;
+          row.purpose = purposeLabel;
+          row.notes = notesLabel;
+        }
+      });
+
+      if (document.getElementById('chkAutoReflow').checked) {
+        reflowSchoolsAcrossWorkingDays();
+      }
+      renderTable();
+      populateHolidayDateDropdown();
+      renderActiveHolidays();
+      flashStatus('Added holiday on ' + dateStr);
+    }
+
+    function removeHolidayOnDate(dateStr) {
+      delete customHolidays[dateStr];
+      diaryRows.forEach(function(row, idx) {
+        if (row.date === dateStr && !row.isSunday) {
+          row.isHoliday = false;
+          const schoolIdx = (idx + schoolOffset) % SAMPLE_SCHOOLS.length;
+          row.school = SAMPLE_SCHOOLS[schoolIdx];
+          row.purpose = 'Academic Supervision';
+          row.notes = 'TLM used effectively during the teaching-learning process.';
+        }
+      });
+
+      if (document.getElementById('chkAutoReflow').checked) {
+        reflowSchoolsAcrossWorkingDays();
+      }
+      renderTable();
+      populateHolidayDateDropdown();
+      renderActiveHolidays();
+      flashStatus('Restored working day on ' + dateStr);
+    }
+
+    function updateHeaderLabels() {
+      const parts = currentYearMonth.split('-');
+      const year = parseInt(parts[0], 10);
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const sessionStr = getSessionLabel(year, monthIdx);
+      const fmtEl = document.getElementById('yearFormatSelect');
+      const fmt = fmtEl ? fmtEl.value : 'session';
+      if (fmt === 'range') {
+        document.getElementById('displayMonth').textContent =
+          MONTH_NAMES[monthIdx] + ' ' + year + '-' + (year + 1);
+      } else if (fmt === 'simple') {
+        document.getElementById('displayMonth').textContent =
+          MONTH_NAMES[monthIdx] + ' ' + year;
+      } else {
+        document.getElementById('displayMonth').textContent =
+          MONTH_NAMES[monthIdx] + ' ' + year + ' (Session: ' + sessionStr + ')';
+      }
+
+      const nameVal = document.getElementById('inputName').value.trim() || 'Mohan Kumar Behera (CRCC)';
+      const clusterVal = document.getElementById('inputCluster').value.trim();
+      const submittedVal = document.getElementById('inputSubmittedTo').value.trim();
+
+      document.getElementById('displayName').textContent = nameVal;
+      document.getElementById('displayCluster').textContent = clusterVal;
+
+      const cleanSigner = nameVal.replace(/\s*\(CRCC\)\s*/i, '').trim();
+      document.getElementById('displaySigName').textContent = '(' + cleanSigner + ')';
+
+      const subParts = submittedVal.split(',');
+      document.getElementById('displaySubmittedLine1').textContent = (subParts[0] || 'Block Education Officer').trim();
+      document.getElementById('displaySubmittedLine2').textContent = (subParts.slice(1).join(',') || 'Suliapada Block').trim();
+    }
+
+    function updateStats() {
+      const total = diaryRows.length;
+      let holidays = 0;
+      let filled = 0;
+      diaryRows.forEach(function(r) {
+        if (r.isSunday || r.isHoliday || /holiday/i.test(r.school) || /holiday/i.test(r.purpose)) {
+          holidays++;
+        }
+        if (r.school.trim() || r.purpose.trim() || r.notes.trim()) {
+          filled++;
+        }
+      });
+      document.getElementById('statTotalDays').textContent = total;
+      document.getElementById('statHolidays').textContent = holidays;
+      document.getElementById('statWorkingDays').textContent = total - holidays;
+      document.getElementById('statFilled').textContent = filled;
+
+      if (diaryRows[selectedRowIndex]) {
+        document.getElementById('selectedRowIndicator').textContent =
+          'Selected row: ' + diaryRows[selectedRowIndex].date + ' (' + diaryRows[selectedRowIndex].day + ')';
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('diaryTableBody');
+      tbody.innerHTML = '';
+
+      diaryRows.forEach(function(row, idx) {
+        const tr = document.createElement('tr');
+        const isSelected = idx === selectedRowIndex;
+        const isRowHoliday = row.isSunday || row.isHoliday;
+        tr.className = (isRowHoliday ? 'bg-amber-50/60 ' : 'hover:bg-slate-50 ') +
+                       (isSelected ? 'ring-1 ring-inset ring-emerald-500 bg-emerald-50/30' : '');
+
+        tr.addEventListener('click', function() {
+          selectedRowIndex = idx;
+          updateStats();
+          if (!row.isSunday) {
+            document.getElementById('holidayDateSelect').value = row.date;
+          }
+          Array.from(tbody.children).forEach(function(el, i) {
+            const r = diaryRows[i];
+            const rHol = r.isSunday || r.isHoliday;
+            el.className = (rHol ? 'bg-amber-50/60 ' : 'hover:bg-slate-50 ') +
+                           (i === selectedRowIndex ? 'ring-1 ring-inset ring-emerald-500 bg-emerald-50/30' : '');
+          });
+        });
+
+        // Date cell
+        const tdDate = document.createElement('td');
+        tdDate.className = 'border border-slate-800 py-1 px-2 text-center font-medium whitespace-nowrap';
+        tdDate.textContent = row.date;
+
+        // Day cell
+        const tdDay = document.createElement('td');
+        tdDay.className = 'border border-slate-800 py-1 px-2 whitespace-nowrap ' + (isRowHoliday ? 'font-semibold text-amber-900' : '');
+        tdDay.textContent = row.day;
+
+        // School / Place cell
+        const tdSchool = document.createElement('td');
+        tdSchool.className = 'border border-slate-800 p-0.5';
+        const inputSchool = document.createElement('input');
+        inputSchool.type = 'text';
+        inputSchool.setAttribute('list', 'clusterSchoolsList');
+        inputSchool.value = row.school;
+        inputSchool.placeholder = isRowHoliday ? 'HOLIDAY / SUNDAY' : 'Select or type school...';
+        inputSchool.className = 'diary-input w-full px-1.5 py-1 text-xs sm:text-sm bg-transparent focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded ' +
+                                (isRowHoliday ? 'font-semibold text-amber-950' : 'font-medium text-slate-900');
+        inputSchool.addEventListener('input', function(e) {
+          diaryRows[idx].school = e.target.value;
+          diaryRows[idx].isHoliday = /holiday/i.test(e.target.value);
+          updateStats();
+        });
+        tdSchool.appendChild(inputSchool);
+
+        // Purpose cell
+        const tdPurpose = document.createElement('td');
+        tdPurpose.className = 'border border-slate-800 p-0.5';
+        const inputPurpose = document.createElement('input');
+        inputPurpose.type = 'text';
+        inputPurpose.value = row.purpose;
+        inputPurpose.placeholder = isRowHoliday ? 'Sunday / Holiday' : 'Enter purpose...';
+        inputPurpose.className = 'diary-input w-full px-1.5 py-1 text-xs sm:text-sm bg-transparent focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded';
+        inputPurpose.addEventListener('input', function(e) {
+          diaryRows[idx].purpose = e.target.value;
+          updateStats();
+        });
+        tdPurpose.appendChild(inputPurpose);
+
+        // Notes cell (Wrap-text auto-expanding textarea + print wrap block)
+        const tdNotes = document.createElement('td');
+        tdNotes.className = 'border border-slate-800 p-0.5 align-top';
+        const inputNotes = document.createElement('textarea');
+        inputNotes.rows = 1;
+        inputNotes.value = row.notes;
+        inputNotes.placeholder = isRowHoliday ? 'School closed - Holiday.' : 'Enter monitoring observations...';
+        inputNotes.className = 'diary-input diary-notes-textarea no-print-input w-full px-1.5 py-1 text-xs sm:text-sm bg-transparent focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded block';
+
+        const printNotesDiv = document.createElement('div');
+        printNotesDiv.className = 'print-wrap-text px-1 py-0.5';
+        printNotesDiv.textContent = row.notes;
+
+        function syncTextareaHeight(el) {
+          el.style.height = 'auto';
+          el.style.height = Math.max(26, el.scrollHeight) + 'px';
+        }
+
+        inputNotes.addEventListener('input', function(e) {
+          diaryRows[idx].notes = e.target.value;
+          printNotesDiv.textContent = e.target.value;
+          syncTextareaHeight(e.target);
+          updateStats();
+        });
+
+        tdNotes.appendChild(inputNotes);
+        tdNotes.appendChild(printNotesDiv);
+        setTimeout(function() { syncTextareaHeight(inputNotes); }, 0);
+
+        // Screen-only Holiday Toggle cell
+        const tdAction = document.createElement('td');
+        tdAction.className = 'no-print border border-slate-800 py-1 px-1.5 text-center whitespace-nowrap';
+        if (row.isSunday) {
+          const sunBadge = document.createElement('span');
+          sunBadge.className = 'text-[11px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded';
+          sunBadge.textContent = 'Sunday';
+          tdAction.appendChild(sunBadge);
+        } else {
+          const toggleBtn = document.createElement('button');
+          toggleBtn.type = 'button';
+          if (row.isHoliday) {
+            toggleBtn.className = 'text-[11px] font-semibold bg-amber-200 hover:bg-amber-300 text-amber-950 px-2 py-0.5 rounded transition';
+            toggleBtn.textContent = '↺ Working';
+            toggleBtn.title = 'Click to restore school visit on this date';
+            toggleBtn.addEventListener('click', function(ev) {
+              ev.stopPropagation();
+              removeHolidayOnDate(row.date);
+            });
+          } else {
+            toggleBtn.className = 'text-[11px] font-medium bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-300 px-2 py-0.5 rounded transition';
+            toggleBtn.textContent = '+ Holiday';
+            toggleBtn.title = 'Mark this date as a Holiday using the selected default holiday option';
+            toggleBtn.addEventListener('click', function(ev) {
+              ev.stopPropagation();
+              const hInfo = getSelectedHolidayConfig();
+              applyHolidayToDate(row.date, hInfo.school, hInfo.purpose, hInfo.notes);
+            });
+          }
+          tdAction.appendChild(toggleBtn);
+        }
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdDay);
+        tr.appendChild(tdSchool);
+        tr.appendChild(tdPurpose);
+        tr.appendChild(tdNotes);
+        tr.appendChild(tdAction);
+        tbody.appendChild(tr);
+      });
+
+      updateStats();
+    }
+
+    function getSelectedHolidayConfig() {
+      const reasonVal = document.getElementById('holidayReasonSelect').value;
+      const customText = document.getElementById('customHolidayInput').value.trim();
+
+      if (customText) {
+        const upperCustom = customText.toUpperCase();
+        const schoolLabel = upperCustom.indexOf('HOLIDAY') === 0 ? upperCustom : 'HOLIDAY / ' + upperCustom;
+        return {
+          school: schoolLabel,
+          purpose: 'Holiday',
+          notes: 'School closed - ' + customText + '.'
+        };
+      }
+
+      if (reasonVal === 'CUSTOM') {
+        return {
+          school: 'HOLIDAY / GOVT. HOLIDAY',
+          purpose: 'Govt. Holiday',
+          notes: 'School closed - Govt. Holiday.'
+        };
+      }
+
+      const parts = reasonVal.split('|');
+      return {
+        school: parts[0] || 'HOLIDAY / GOVT. HOLIDAY',
+        purpose: parts[1] || 'Govt. Holiday',
+        notes: parts[2] || 'School closed - Govt. Holiday.'
+      };
+    }
+
+    function flashStatus(msg) {
+      const el = document.getElementById('saveStatus');
+      el.textContent = '✓ ' + msg;
+    }
+
+    function exportCsv() {
+      const headers = ['Date', 'Day', 'School / Place', 'Purpose', 'Monitoring Notes / Observations'];
+      const lines = [headers.join(',')];
+      diaryRows.forEach(function(r) {
+        const rowVals = [r.date, r.day, r.school, r.purpose, r.notes].map(function(v) {
+          return '"' + String(v || '').replace(/"/g, '""') + '"';
+        });
+        lines.push(rowVals.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Monitoring_Tour_Diary_' + currentYearMonth + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      flashStatus('CSV Exported');
+    }
+
+    function renderReferenceDrawerLists() {
+      const hBody = document.getElementById('officialHolidayTableBody');
+      if (hBody) {
+        hBody.innerHTML = '';
+        OFFICIAL_2026_SUMMARY_LIST.forEach(function(item) {
+          const tr = document.createElement('tr');
+          const isObs = item.remarks.indexOf('Observance') !== -1;
+          tr.className = isObs ? 'bg-indigo-50/60' : 'hover:bg-slate-50';
+          tr.innerHTML =
+            '<td class="py-1 px-2 font-medium text-slate-600">' + item.sl + '</td>' +
+            '<td class="py-1 px-2 font-medium text-slate-900">' + item.name + '</td>' +
+            '<td class="py-1 px-2 text-slate-700 whitespace-nowrap">' + item.date + '</td>' +
+            '<td class="py-1 px-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-semibold ' +
+            (isObs ? 'bg-indigo-100 text-indigo-900' : 'bg-amber-100 text-amber-900') + '">' +
+            item.remarks + '</span></td>';
+          hBody.appendChild(tr);
+        });
+      }
+
+      const obsBank = document.getElementById('observationBankList');
+      if (obsBank) {
+        obsBank.innerHTML = '';
+        VISIT_TEMPLATES.forEach(function(tpl, idx) {
+          const itemDiv = document.createElement('button');
+          itemDiv.type = 'button';
+          itemDiv.className = 'w-full text-left p-2 hover:bg-emerald-50 transition flex flex-col gap-0.5';
+          itemDiv.innerHTML =
+            '<span class="text-[11px] font-bold text-emerald-900">' + (idx + 1) + '. ' + tpl.purpose + '</span>' +
+            '<span class="text-xs text-slate-700">' + tpl.notes + '</span>';
+          itemDiv.addEventListener('click', function() {
+            if (!diaryRows[selectedRowIndex]) return;
+            const target = diaryRows[selectedRowIndex];
+            target.purpose = tpl.purpose;
+            target.notes = tpl.notes;
+            renderTable();
+            flashStatus('Applied observation #' + (idx + 1) + ' to ' + target.date);
+          });
+          obsBank.appendChild(itemDiv);
+        });
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+      const initParts = currentYearMonth.split('-');
+      customHolidays = getOfficial2026HolidaysForMonth(parseInt(initParts[0], 10), parseInt(initParts[1], 10));
+      diaryRows = buildMonthRows(currentYearMonth, true);
+      updateHeaderLabels();
+      renderSchoolBadges();
+      renderReferenceDrawerLists();
+      renderTable();
+      populateHolidayDateDropdown();
+      renderActiveHolidays();
+
+      const toggleRefBtn = document.getElementById('btnToggleRefLists');
+      if (toggleRefBtn) {
+        toggleRefBtn.addEventListener('click', function() {
+          const drawer = document.getElementById('refListsDrawer');
+          drawer.classList.toggle('hidden');
+        });
+      }
+
+      function handlePeriodChange() {
+        const mVal = document.getElementById('monthSelect').value;
+        const yVal = document.getElementById('yearSelect').value;
+        currentYearMonth = yVal + '-' + mVal;
+        selectedRowIndex = 0;
+        customHolidays = getOfficial2026HolidaysForMonth(parseInt(yVal, 10), parseInt(mVal, 10));
+        diaryRows = buildMonthRows(currentYearMonth, true);
+        updateHeaderLabels();
+        renderTable();
+        populateHolidayDateDropdown();
+        renderActiveHolidays();
+        const mText = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
+        const hCount = Object.keys(customHolidays).length;
+        flashStatus('Loaded ' + mText + ' ' + yVal + (hCount ? ' (' + hCount + ' Official Holidays/Observances auto-marked)' : ''));
+      }
+
+      document.getElementById('monthSelect').addEventListener('change', handlePeriodChange);
+      document.getElementById('yearSelect').addEventListener('change', handlePeriodChange);
+      document.getElementById('yearFormatSelect').addEventListener('change', function() {
+        updateHeaderLabels();
+        flashStatus('Updated Month/Year Display Format');
+      });
+
+      ['inputName', 'inputCluster', 'inputSubmittedTo'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+          updateHeaderLabels();
+          flashStatus('Header Updated');
+        });
+      });
+
+      document.getElementById('btnAddHoliday').addEventListener('click', function() {
+        const targetDate = document.getElementById('holidayDateSelect').value;
+        if (!targetDate) return;
+        const hInfo = getSelectedHolidayConfig();
+        applyHolidayToDate(targetDate, hInfo.school, hInfo.purpose, hInfo.notes);
+        document.getElementById('customHolidayInput').value = '';
+      });
+
+      document.getElementById('btnApplyPreset').addEventListener('click', function() {
+        const key = document.getElementById('selectPreset').value;
+        if (!key || !PRESETS[key] || !diaryRows[selectedRowIndex]) return;
+        const targetRow = diaryRows[selectedRowIndex];
+        if (key === 'holiday') {
+          const hInfo = getSelectedHolidayConfig();
+          applyHolidayToDate(targetRow.date, hInfo.school, hInfo.purpose, hInfo.notes);
+          return;
+        }
+        const p = PRESETS[key];
+        targetRow.isHoliday = false;
+        delete customHolidays[targetRow.date];
+        targetRow.school = p.school;
+        targetRow.purpose = p.purpose;
+        targetRow.notes = p.notes;
+        renderTable();
+        populateHolidayDateDropdown();
+        renderActiveHolidays();
+        flashStatus('Applied preset to ' + targetRow.date);
+      });
+
+      document.getElementById('btnQuickFill').addEventListener('click', function() {
+        diaryRows = buildMonthRows(currentYearMonth, true);
+        renderTable();
+        populateHolidayDateDropdown();
+        flashStatus('15 Cluster Schools Auto-Filled');
+      });
+
+      document.getElementById('btnShuffleSchools').addEventListener('click', function() {
+        schoolOffset = (schoolOffset + 1) % SAMPLE_SCHOOLS.length;
+        reflowSchoolsAcrossWorkingDays();
+        renderTable();
+        populateHolidayDateDropdown();
+        flashStatus('Rotated school visit order');
+      });
+
+      document.getElementById('btnResetCorrect').addEventListener('click', function() {
+        diaryRows = buildMonthRows(currentYearMonth, false);
+        renderTable();
+        populateHolidayDateDropdown();
+        flashStatus('Cleared working days (Sundays & added holidays kept)');
+      });
+
+      document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
+
+      document.getElementById('btnPrint').addEventListener('click', function() {
+        window.print();
+      });
+    });
+  </script>
+</body>
+</html>
